@@ -4,12 +4,11 @@
 
 const screenNames = {
     0: 'home',
-    1: 'profile',
     2: 'hub',
     3: 'appearance',
     4: 'inner',
     9: 'swipe', 10: 'location', 11: 'loading',
-    12: 'worldcup', 13: 'confirm', 14: 'email'
+    12: 'worldcup', 13: 'email'
 };
 
 const screenIds = {};
@@ -21,12 +20,9 @@ for (const [id, name] of Object.entries(screenNames)) {
 export const state = {
     currentScreen: 0,
 
-    // User personal info
-    userAge: 25,
-    userGender: null,      // '남성' | '여성'
-
     // Beff gender preference
     beffGenderPref: null,  // 'same' | 'any' | 'opposite'
+    ageDiffPref: null,     // -1 (younger) | 0 (same) | 1 (older)
 
     // Appearance (set via sliders or celebrity shortcut)
     appearance: {
@@ -67,11 +63,11 @@ export const state = {
  * Returns 'male' | 'female' | 'neutral'
  */
 export function effectiveBeffGender() {
-    const u = state.userGender;
     const p = state.beffGenderPref;
-    if (!u || !p || p === 'any') return 'neutral';
-    if (p === 'same') return u === '남성' ? 'male' : 'female';
-    /* opposite */ return u === '남성' ? 'female' : 'male';
+    if (!p || p === 'any') return 'neutral';
+    if (p === 'female') return 'female';
+    if (p === 'male') return 'male';
+    return 'neutral';
 }
 
 // ===== Screen Registry =====

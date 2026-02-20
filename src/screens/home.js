@@ -58,11 +58,11 @@ registerScreen(0, () => `
     </h1>
 
     <p class="screen-subtitle anim-fade-in-3" style="max-width: 320px; line-height: 1.7;">
-      AI가 만들어주는 나만의 베프,<br/>지금 바로 만나보세요
+      상상만 하던 완벽한 인연,<br/>지금 내 주변에서 찾아보세요
     </p>
 
     <button class="btn btn-primary btn-lg anim-fade-in-4" id="start-btn" style="margin-top: var(--sp-lg);">
-      ➕ BEFF 추가하기
+      BEFF 시작하기
     </button>
 
     <p class="anim-fade-in-4" style="color: var(--text-muted); font-size: var(--fs-xs); margin-top: var(--sp-2xl);">
@@ -72,5 +72,5 @@ registerScreen(0, () => `
 `);
 
 registerScreen('0_init', (el) => {
-  el.querySelector('#start-btn').addEventListener('click', () => navigateTo(1));
+  el.querySelector('#start-btn').addEventListener('click', () => navigateTo(2));
 });

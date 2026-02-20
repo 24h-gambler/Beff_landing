@@ -73,17 +73,11 @@ function handleSwipe(direction, el) {
 
   setTimeout(() => {
     if (currentIndex >= cards.length) {
-      navigateTo(10); // → location screen
+      navigateTo(11); // Skip location (10) -> Go straight to loading (11)
       return;
     }
 
     const area = el.querySelector('#swipe-area');
-    if (area) {
-      area.innerHTML = renderCard(currentIndex);
-      attachCardEvents(el);
-    }
-
-    const counter = el.querySelector('#swipe-counter');
     if (counter) counter.textContent = `${currentIndex + 1} / ${cards.length}`;
   }, 400);
 }

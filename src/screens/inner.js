@@ -1,6 +1,6 @@
 import { registerScreen, navigateTo, state } from '../app.js';
 
-const jobTypes = ['사무직', '전문직', '크리에이터', '서비스직', '자영업', '학생'];
+const jobTypes = ['사무직', '전문직', '크리에이터', '서비스직', '자영업', '학생', '취업준비생', '백수', '부자'];
 
 function innerRow(id, label, left, right) {
   const isSet = state.inner[id] !== null;
@@ -45,29 +45,47 @@ registerScreen(4, () => {
           <button class="celeb-go" id="celeb-go">적용</button>
         </div>
       </div>
+      <button class="btn-skip" id="inn-skip" style="margin-top: 8px; margin-bottom: 24px;">전부 상관없음 (건너뛰기)</button>
 
       <div class="custom-divider"></div>
 
       <div class="multi-sliders">
-        ${innerRow('relationship', '관계', '처음 만남', '오래된 절친')}
         ${innerRow('attention', '관심도', '쿨함', '다정함')}
+        ${innerRow('relationship', '관계', '가벼움', '절친/연인')}
         ${innerRow('sharing', '일상 공유', '가끔', '수시로')}
         ${innerRow('chatStyle', '대화', '간결', '수다')}
 
-        <!-- Job type -->
-        <div class="ms-row" data-field="job">
+        <!-- Interests -->
+        <div class="ms-row" data-field="interests">
           <div class="ms-top">
+            <span class="ms-label">관심사</span>
+            <button class="ms-reset" id="interests-reset" style="${interestsSet ? '' : 'display:none'}">상관없음</button>
+          </div>
+          <div class="slider-body${interestsSet ? ' active' : ''}">
+            <div class="slider-content">
+              <input type="text" class="ms-text" id="interests-input"
+                placeholder="예) 운동, 영화, 맛집" value="${s.interests || ''}" />
+            </div>
+            <button class="slider-overlay" id="interests-overlay">
+              <span>상관없음</span>
+              <small>터치해서 설정</small>
+            </button>
+          </div>
+        </div>
+
+        <!-- Job type -->
+        <div class="ms-row" data-field="job" style="flex-direction: column; align-items: stretch;">
+          <div class="ms-top" style="margin-bottom: 12px;">
             <span class="ms-label">직무</span>
-            <span class="ms-value" id="job-val"></span>
             <button class="ms-reset" id="job-reset" style="${jobSet ? '' : 'display:none'}">상관없음</button>
           </div>
-          <div class="slider-body${jobSet ? ' active' : ''}">
-            <div class="slider-content">
-              <input type="range" class="ms-range" id="job-range"
-                min="0" max="100" value="${jobSet ? Math.round(jobTypes.indexOf(s.job) / (jobTypes.length - 1) * 100) : 50}" step="1" />
-              <div class="ms-ticks">${jobTypes.map(t => `<span class="ms-tick">${t}</span>`).join('')}</div>
+          <div class="slider-body${jobSet ? ' active' : ''}" style="min-height: auto; padding-bottom: 8px;">
+            <div class="slider-content" style="opacity: 1; pointer-events: auto;">
+              <div class="toggle-row" id="job-toggles" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                ${jobTypes.map(t => `<button class="toggle-pill${s.job === t ? ' active' : ''}" data-val="${t}" style="flex: 1 1 calc(33.333% - 8px); padding: 8px 4px; font-size: 0.85rem;">${t}</button>`).join('')}
+              </div>
             </div>
-            <button class="slider-overlay" id="job-overlay">
+            <button class="slider-overlay" id="job-overlay" style="${jobSet ? 'display: none;' : ''}">
               <span>상관없음</span>
               <small>터치해서 설정</small>
             </button>
@@ -91,28 +109,9 @@ registerScreen(4, () => {
             </button>
           </div>
         </div>
-
-        <!-- Interests -->
-        <div class="ms-row" data-field="interests">
-          <div class="ms-top">
-            <span class="ms-label">관심사</span>
-            <button class="ms-reset" id="interests-reset" style="${interestsSet ? '' : 'display:none'}">상관없음</button>
-          </div>
-          <div class="slider-body${interestsSet ? ' active' : ''}">
-            <div class="slider-content">
-              <input type="text" class="ms-text" id="interests-input"
-                placeholder="예) 운동, 영화, 맛집" value="${s.interests || ''}" />
-            </div>
-            <button class="slider-overlay" id="interests-overlay">
-              <span>상관없음</span>
-              <small>터치해서 설정</small>
-            </button>
-          </div>
-        </div>
       </div>
 
       <button class="btn btn-primary btn-full" id="inn-done" style="margin-top: var(--sp-xl);">완료</button>
-      <button class="btn-skip" id="inn-skip">전부 상관없음</button>
     </div>`;
 });
 
@@ -127,6 +126,8 @@ registerScreen('4_init', (el) => {
 
   // Overlay + reset handlers
   allFields.forEach(f => {
+    if (f === 'job') return; // Handled separately below
+
     const overlay = el.querySelector(`#${f}-overlay`);
     const body = overlay.closest('.slider-body');
     const resetBtn = el.querySelector(`#${f}-reset`);
@@ -155,37 +156,104 @@ registerScreen('4_init', (el) => {
     });
   });
 
-  // Job slider value display
-  const jobRange = el.querySelector('#job-range');
-  const jobVal = el.querySelector('#job-val');
-  jobRange.addEventListener('input', () => {
-    jobVal.textContent = closestJobLabel(+jobRange.value);
+  // Job discrete toggle logic
+  const jobToggles = el.querySelectorAll('#job-toggles .toggle-pill');
+  const jobReset = el.querySelector('#job-reset');
+  const jobOverlay = el.querySelector('#job-overlay');
+
+  jobToggles.forEach(btn => {
+    btn.addEventListener('click', () => {
+      jobToggles.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.inner.job = btn.dataset.val;
+      activated.job = true;
+      jobReset.style.display = '';
+    });
   });
-  if (activated.job) jobVal.textContent = closestJobLabel(+jobRange.value);
+
+  // Override overlay for job
+  const originalJobOverlayClick = () => {
+    activated.job = true;
+    el.querySelector('#job-overlay').closest('.slider-body').classList.add('active');
+    jobReset.style.display = '';
+    jobOverlay.style.display = 'none';
+  };
+  jobOverlay.addEventListener('click', originalJobOverlayClick);
+
+  // Override reset for job
+  jobReset.addEventListener('click', () => {
+    activated.job = false;
+    el.querySelector('#job-overlay').closest('.slider-body').classList.remove('active');
+    jobReset.style.display = 'none';
+    jobOverlay.style.display = '';
+    state.inner.job = null;
+    jobToggles.forEach(b => b.classList.remove('active'));
+  });
 
   // Celebrity shortcut
+  const multiSliders = el.querySelector('.multi-sliders');
   el.querySelector('#celeb-go').addEventListener('click', () => {
     const name = el.querySelector('#celeb-input').value.trim();
-    if (!name) return;
+    if (!name) {
+      state.inner.celebRef = null;
+      multiSliders.style.opacity = '1';
+      multiSliders.style.pointerEvents = 'auto';
+      // Restore job slider pointer events
+      const jobSliderContent = el.querySelector('[data-field="job"] .slider-content');
+      if (jobSliderContent) jobSliderContent.style.pointerEvents = 'auto';
+      el.querySelector('#celeb-go').textContent = '적용';
+      return;
+    }
+
+    // Lock sliders, rely on Backend Ops
     state.inner.celebRef = name;
-    sliderFields.forEach(f => {
-      activated[f] = true;
-      el.querySelector(`#${f}-overlay`).closest('.slider-body').classList.add('active');
-      el.querySelector(`#${f}-reset`).style.display = '';
+    state.inner.skipAll = false;
+
+    allFields.forEach(f => {
+      activated[f] = false;
+      const body = el.querySelector(`#${f}-overlay`).closest('.slider-body');
+      body.classList.remove('active');
+      const resetBtn = el.querySelector(`#${f}-reset`);
+      if (resetBtn) resetBtn.style.display = 'none';
+
+      const textInput = body.querySelector('input[type="text"]');
+      if (textInput) textInput.value = '';
+
+      const valEl = el.querySelector(`#${f}-val`);
+      if (valEl) valEl.textContent = '';
+
+      state.inner[f] = null;
     });
-    el.querySelector('#relationship-range').value = 65;
-    el.querySelector('#attention-range').value = 70;
-    el.querySelector('#sharing-range').value = 60;
-    el.querySelector('#chatStyle-range').value = 75;
+
+    multiSliders.style.opacity = '0.3';
+    multiSliders.style.pointerEvents = 'none';
+    multiSliders.style.transition = 'opacity 0.3s ease';
+
+    // Disable job slider pointer events specifically
+    const jobSliderContent = el.querySelector('[data-field="job"] .slider-content');
+    if (jobSliderContent) jobSliderContent.style.pointerEvents = 'none';
+
     el.querySelector('#celeb-go').textContent = '✓ 적용됨';
   });
 
+  // Hydrate celebRef if navigating back
+  if (state.inner.celebRef) {
+    el.querySelector('#celeb-input').value = state.inner.celebRef;
+    multiSliders.style.opacity = '0.3';
+    multiSliders.style.pointerEvents = 'none';
+    const jobSliderContent = el.querySelector('[data-field="job"] .slider-content');
+    if (jobSliderContent) jobSliderContent.style.pointerEvents = 'none';
+    el.querySelector('#celeb-go').textContent = '✓ 적용됨';
+  }
+
   // Done
   el.querySelector('#inn-done').addEventListener('click', () => {
+    state.inner.skipAll = false;
     sliderFields.forEach(f => {
       state.inner[f] = activated[f] ? +el.querySelector(`#${f}-range`).value : null;
     });
-    state.inner.job = activated.job ? closestJobLabel(+jobRange.value) : null;
+    // state.inner.job is already updated by click handlers, but ensure we clear if not activated
+    if (!activated.job) state.inner.job = null;
     const jobSpec = el.querySelector('#jobSpecific-input').value.trim();
     state.inner.jobSpecific = (activated.jobSpecific && jobSpec) ? jobSpec : null;
     const interests = el.querySelector('#interests-input').value.trim();
@@ -194,11 +262,14 @@ registerScreen('4_init', (el) => {
     history.back();
   });
 
-  el.querySelector('#inn-skip').addEventListener('click', () => history.back());
+  el.querySelector('#inn-skip').addEventListener('click', () => {
+    state.inner.skipAll = true;
+    history.back();
+  });
   el.querySelector('#inn-back').addEventListener('click', () => history.back());
 });
 
-function closestJobLabel(val) {
-  const idx = Math.round(val / 100 * (jobTypes.length - 1));
-  return jobTypes[Math.max(0, Math.min(idx, jobTypes.length - 1))];
-}
+// function closestJobLabel(val) {
+//   const idx = Math.round(val / 100 * (jobTypes.length - 1));
+//   return jobTypes[Math.max(0, Math.min(idx, jobTypes.length - 1))];
+// }
