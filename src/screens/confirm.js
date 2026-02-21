@@ -7,8 +7,10 @@ registerScreen(13, () => {
   return `
     <div class="flex-center flex-grow gap-lg">
       <div style="position: relative;">
-        <div class="confirm-img" style="background: ${winner.gradient}; display:flex; align-items:center; justify-content:center; font-size: 4rem; width: 200px; height: 200px;">
-          ${winner.emoji}
+        <div class="confirm-img" style="${winner.imageUrl ? '' : 'background:' + winner.gradient + ';'} display:flex; align-items:center; justify-content:center; font-size: 4rem; width: 200px; height: 200px; border-radius: 50%; overflow: hidden;">
+          ${winner.imageUrl
+      ? `<img src="${winner.imageUrl}" alt="${winner.name}" style="width:100%;height:100%;object-fit:cover;" />`
+      : winner.emoji}
         </div>
       </div>
 

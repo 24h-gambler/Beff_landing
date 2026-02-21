@@ -33,8 +33,10 @@ registerScreen(13, () => {
         </p>
 
         ${winner ? `
-        <div class="confirm-img" style="background: ${winner.gradient}; display:flex; align-items:center; justify-content:center; font-size: 3.5rem; width: 140px; height: 140px; margin: var(--sp-md) auto var(--sp-sm) auto;">
-          ${winner.emoji}
+        <div class="confirm-img" style="${winner.imageUrl ? '' : 'background:' + winner.gradient + ';'} display:flex; align-items:center; justify-content:center; font-size: 3.5rem; width: 140px; height: 140px; margin: var(--sp-md) auto var(--sp-sm) auto; border-radius: 50%; overflow: hidden;">
+          ${winner.imageUrl
+        ? `<img src="${winner.imageUrl}" alt="${winner.name}" style="width:100%;height:100%;object-fit:cover;" />`
+        : winner.emoji}
         </div>
         <h3 style="font-size: var(--fs-lg); font-weight: 800; margin-bottom: 4px;">${winner.name}</h3>
         <p style="color: var(--text-secondary); font-size: var(--fs-xs); text-align: center; margin-bottom: var(--sp-lg);">
