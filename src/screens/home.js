@@ -72,5 +72,8 @@ registerScreen(0, () => `
 `);
 
 registerScreen('0_init', (el) => {
+  // Cloud Run warm-up: 페이지 로드 시 서버를 미리 깨움 (콜드스타트 방지)
+  fetch('https://beff-api-554500464013.us-central1.run.app/docs', { mode: 'no-cors' }).catch(() => { });
+
   el.querySelector('#start-btn').addEventListener('click', () => navigateTo(2));
 });

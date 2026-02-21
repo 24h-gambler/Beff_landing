@@ -3,7 +3,7 @@ import { randomKoreanName, randomJobTitle, randomHobbies, randomDistance, nearby
 import { getPlaceholderGradient, getPersonEmoji } from '../data/imagePool.js';
 
 // ===== API 설정 =====
-const API_BASE = 'https://beff-api.fly.dev';
+const API_BASE = 'https://beff-api-554500464013.us-central1.run.app';
 
 registerScreen(11, () => {
   return `

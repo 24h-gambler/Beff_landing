@@ -1,6 +1,6 @@
 import { registerScreen, navigateTo, state } from '../app.js';
 
-const API_BASE = 'https://beff-api.fly.dev';
+const API_BASE = 'https://beff-api-554500464013.us-central1.run.app';
 
 let bracket = [];
 let round = '8강';
